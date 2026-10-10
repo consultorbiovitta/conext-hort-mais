@@ -344,9 +344,9 @@ function refresh(pulse){ renderList(); renderBar(pulse); if($('#ov').classList.c
 // ===== MENSAGEM (CUPOM) =====
 function buildMsg(){
   const d=new Date(), p2=n=>String(n).padStart(2,'0');
-  const num = String(d.getFullYear()).slice(2)+p2(d.getMonth()+1)+p2(d.getDate())+'-'+String(Math.floor(Math.random()*9000)+1000);
+  const num = p2(d.getDate())+p2(d.getMonth()+1)+d.getFullYear()+'-'+p2(d.getHours())+p2(d.getMinutes());
   const L = ['🧾 *PEDIDO — '+STORE.toUpperCase()+'*','*Nº:* '+num,'*Data:* '+p2(d.getDate())+'/'+p2(d.getMonth()+1)+'/'+d.getFullYear()+' '+p2(d.getHours())+':'+p2(d.getMinutes()),'━━━━━━━━━━━━━━','*PRODUTOS*',''];
-  items().forEach(i=>{ L.push(`${i.qty}x *${i.p.name}*`, `   ${mName(i.p,i.m)} · ${fmt(i.unit)} / ${uLabel(i.p,i.m)} = *${fmt(i.sub)}*`, ''); });
+  items().forEach(i=>{ L.push(`${i.qty}x *${i.p.name}*`, `${fmt(i.unit)} / ${uLabel(i.p,i.m)} = *${fmt(i.sub)}*`, ''); });
   L.push('━━━━━━━━━━━━━━','*TOTAL: '+fmt(total())+'*','━━━━━━━━━━━━━━');
   const nome=$('#nome').value.trim(), end=$('#end').value.trim(), obs=$('#obs').value.trim();
   if(nome) L.push('*Cliente:* '+nome); if(end) L.push('*Endereço de entrega:* '+end); if(obs) L.push('*Observações:* '+obs);
