@@ -179,6 +179,14 @@ body,button,input,select,textarea{font-family:"DM Sans",system-ui,-apple-system,
 .warn{background:#fff4d6;border:1px solid #f5af14;border-radius:12px;padding:10px 14px;margin:0 0 12px;font-size:.9rem;color:#5a3b00}
 @media(max-width:900px){.hph{width:75%;-webkit-mask-image:linear-gradient(90deg,transparent 25%,#000 70%);mask-image:linear-gradient(90deg,transparent 25%,#000 70%)}}
 @media(max-width:700px){.hph{width:100%}.fl{display:none}.bw{display:grid;grid-template-columns:repeat(3,1fr);padding:16px 4px}.bi{flex-direction:column;text-align:center;padding:0 6px;gap:6px}.bi small{font-size:.7rem}}
+.ft{margin:22px 0 0;padding:18px 0 8px;border-top:1px solid var(--b)}
+.fb{display:flex;gap:10px;flex-wrap:wrap}
+.wbtn{flex:1 1 200px;display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;border-radius:12px;background:var(--w);color:#fff;font-weight:700;text-decoration:none}
+.zbtn{flex:1 1 160px;min-height:48px;border-radius:12px;border:1.5px solid var(--r);background:#fff;color:var(--r);font-weight:700}
+.zbtn:disabled{opacity:.4;cursor:not-allowed}
+.zbtn.arm{background:var(--r);color:#fff}
+.ft p{margin:12px 0 0;color:var(--m);font-size:.8rem;text-align:center}
+body{padding-bottom:110px}
 </style>
 </head>
 <body>
@@ -209,10 +217,12 @@ body,button,input,select,textarea{font-family:"DM Sans",system-ui,-apple-system,
   </div>
   <div id="list" aria-live="polite"></div>
   <div class="pix" id="pixFoot"></div>
-  <footer id="foot"></footer>
+  <footer class="ft"><div class="fb">
+    <a class="wbtn" href="https://wa.me/5515991440851" target="_blank" rel="noopener"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg> Falar no WhatsApp</a>
+    <button class="zbtn" id="zero" data-a="zero" disabled>Zerar pedido</button>
+  </div><p id="foot"></p></footer>
 </main>
 
-<a class="wa" href="https://wa.me/5515991440851" target="_blank" rel="noopener" aria-label="Falar com a Conext Hort Mais no WhatsApp">💬 WhatsApp</a>
 <div class="bar"><div class="in"><div class="tot" id="barTot"></div><button class="go" data-a="open" id="barBtn">Ver meu pedido <span aria-hidden="true">→</span></button></div></div>
 
 <div class="ov" id="ov" role="dialog" aria-modal="true" aria-labelledby="ttl">
@@ -315,7 +325,7 @@ function renderBar(pulse){
   const its=items(), n=its.reduce((a,i)=>a+i.qty,0), tt=total(), t=$('#barTot');
   const sub = MIN_ORDER>0 && n && tt<MIN_ORDER ? 'Faltam '+fmt(MIN_ORDER-tt)+' para o mínimo' : (n ? n+(n==1?' item':' itens')+' no pedido' : 'Nenhum item ainda');
   t.innerHTML = `<small>Seu pedido</small><strong>${fmt(tt)}</strong><small>${sub}</small>`;
-  $('#cnt').textContent = n;
+  $('#cnt').textContent = n; const z=$('#zero'); z.disabled = !n; if(!n) disarmZero();
   if(pulse){ t.classList.remove('pulse'); void t.offsetWidth; t.classList.add('pulse'); }
 }
 function renderSheet(){
@@ -367,6 +377,14 @@ function resetOrder(){
   $('#ov').classList.remove('show'); refresh();
 }
 function closeSheet(){ if(sent) resetOrder(); else $('#ov').classList.remove('show'); }
+let zeroT=null;
+function disarmZero(){ const b=$('#zero'); delete b.dataset.arm; b.textContent='Zerar pedido'; b.classList.remove('arm'); }
+function zeroTap(){
+  const b=$('#zero');
+  if(b.dataset.arm){ clearTimeout(zeroT); disarmZero(); resetOrder(); return; }
+  b.dataset.arm='1'; b.textContent='Toque de novo para confirmar'; b.classList.add('arm');
+  zeroT=setTimeout(disarmZero,4000);
+}
 // ===== EVENTOS =====
 document.addEventListener('click', e=>{
   const b=e.target.closest('[data-a]'); if(!b) return; const a=b.dataset.a, k=b.dataset.k;
@@ -380,6 +398,7 @@ document.addEventListener('click', e=>{
   else if(a==='start'){ $('#catalogo').scrollIntoView({behavior:'smooth'}); }
   else if(a==='reset'){ resetOrder(); }
   else if(a==='retry'){ boot(); }
+  else if(a==='zero'){ zeroTap(); }
   else if(a==='close'){ closeSheet(); }
   else if(a==='copy'){ copyPix(b); }
   else if(a==='send'){ send(); }
